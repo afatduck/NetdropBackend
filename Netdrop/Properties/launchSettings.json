@@ -11,18 +11,18 @@
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": true,
-      "launchUrl": "api/netdrop",
+      "launchBrowser": false,
+      "launchUrl": "api",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Production"
       }
     },
     "Netdrop": {
       "commandName": "Project",
       "dotnetRunMessages": "true",
-      "launchBrowser": true,
-      "launchUrl": "api/netdrop",
-      "applicationUrl": "https://localhost:6769;http://localhost:6768",
+      "launchBrowser": false,
+      "launchUrl": "api",
+      "applicationUrl": "https://0.0.0.0:5009;http://0.0.0.0:5008",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
