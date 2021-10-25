@@ -29,6 +29,7 @@ namespace Netdrop.Controllers
                 using (var fs = new FileStream((string)e.UserState, FileMode.Create, FileAccess.Write))
                 {
                     await fs.WriteAsync(raw, 0, raw.Length);
+                    downloadProgress[(string)e.UserState]++;
                 }
             }
             catch (TargetInvocationException) {}
@@ -36,7 +37,7 @@ namespace Netdrop.Controllers
 
         protected void DownloadChange(object sender, DownloadProgressChangedEventArgs e)
         {
-            downloadProgress[(string)e.UserState] = e.BytesReceived;
+            downloadProgress[(string)e.UserState] = e.BytesReceived - 1;
         }
     }
 }

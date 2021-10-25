@@ -90,6 +90,8 @@ namespace Netdrop
             {
                 endpoints.MapControllers();
             });
+
+            ClearTmp.CheckAndDelete();
         }
     }
 }

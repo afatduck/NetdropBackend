@@ -39,7 +39,7 @@ namespace Netdrop.Controllers
                     return JsonSerializer.Serialize(ordered);
                 }
             }
-            catch (Exception ex)
+            catch (FtpException ex)
             {
                 return JsonSerializer.Serialize(ex.Message);
             }
