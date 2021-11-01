@@ -45,7 +45,8 @@ namespace Netdrop.Controllers
                 {
                     HttpOnly = true,
                     SameSite = SameSiteMode.None,
-                    Expires = DateTime.MaxValue
+                    Expires = DateTime.MaxValue,
+                    Secure = true
                 });
                 return Ok(new RegistrationResponse()
                 {
