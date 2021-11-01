@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 
 namespace Netdrop
@@ -21,6 +22,15 @@ namespace Netdrop
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
+                    webBuilder.UseKestrel(options =>
+                    {
+                        options.Listen(IPAddress.Any, 5009, listenOptions => {
+                            listenOptions.UseHttps("cert.pfx", "1");
+                        });
+
+                        options.Listen(IPAddress.Any, 5008);
+
+                    });
                 });
     }
 }
