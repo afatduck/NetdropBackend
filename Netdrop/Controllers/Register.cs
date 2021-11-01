@@ -44,7 +44,7 @@ namespace Netdrop.Controllers
                 Response.Cookies.Append("jwt", jwtToken, new CookieOptions()
                 {
                     HttpOnly = true,
-                    SameSite = SameSiteMode.Lax,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTime.MaxValue
                 });
                 return Ok(new RegistrationResponse()

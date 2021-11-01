@@ -43,7 +43,7 @@ namespace Netdrop.Controllers
                 string jwtToken = GenerateJwtToken(existitngUser);
                 Response.Cookies.Append("jwt", jwtToken, new CookieOptions() {
                     HttpOnly = true,
-                    SameSite = SameSiteMode.Lax,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTime.MaxValue
                 });
                 return Ok(new LoginResponse() {
