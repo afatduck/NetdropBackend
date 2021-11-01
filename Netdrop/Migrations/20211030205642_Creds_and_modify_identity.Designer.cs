@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Netdrop.Models;
 
 namespace Netdrop.Migrations
 {
     [DbContext(typeof(NetdropContext))]
-    partial class NetdropContextModelSnapshot : ModelSnapshot
+    [Migration("20211030205642_Creds_and_modify_identity")]
+    partial class Creds_and_modify_identity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -219,7 +221,10 @@ namespace Netdrop.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("ApplicationUserId")
+                    b.Property<int>("ApplicationUserId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ApplicationUserId1")
                         .HasColumnType("varchar(255)");
 
                     b.Property<string>("Host")
@@ -237,7 +242,7 @@ namespace Netdrop.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ApplicationUserId");
+                    b.HasIndex("ApplicationUserId1");
 
                     b.ToTable("SavedCredentials");
                 });
@@ -296,16 +301,10 @@ namespace Netdrop.Migrations
             modelBuilder.Entity("Netdrop.Models.SavedCredentials", b =>
                 {
                     b.HasOne("Netdrop.Models.ApplicationUser", "ApplicationUser")
-                        .WithMany("SavedCredentials")
-                        .HasForeignKey("ApplicationUserId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .WithMany()
+                        .HasForeignKey("ApplicationUserId1");
 
                     b.Navigation("ApplicationUser");
-                });
-
-            modelBuilder.Entity("Netdrop.Models.ApplicationUser", b =>
-                {
-                    b.Navigation("SavedCredentials");
                 });
 #pragma warning restore 612, 618
         }

@@ -2,21 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.ComponentModel.DataAnnotations;
 
-namespace Netdrop.Models
+namespace Netdrop.Interfaces.Requests
 {
-    public class Users
+    public class NewCredentialRequest
     {
-        [Key]
-
-        public int Id { get; set; }
-
-        [Required]
-
+        public string Host { get; set; }
         public string Username { get; set; }
-
         public string Password { get; set; }
-
+        public bool Secure { get; set; }
     }
 }

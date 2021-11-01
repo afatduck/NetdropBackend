@@ -1,14 +1,29 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Netdrop.Models
 {
-    public class NetdropContext : DbContext
+    public class NetdropContext : IdentityDbContext<ApplicationUser>
     {
+        public DbSet<SavedCredentials> SavedCredentials { get; set; }
         public NetdropContext(DbContextOptions<NetdropContext> options) : base (options)
         {
-
         }
 
-        public DbSet<Users> Users { get; set; }
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+
+            base.OnModelCreating(builder);
+
+            builder.Entity<SavedCredentials>()
+                .HasOne(p => p.ApplicationUser)
+                .WithMany(b => b.SavedCredentials)
+                .HasForeignKey(t => t.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<ApplicationUser>()
+                .Navigation(b => b.SavedCredentials)
+                .UsePropertyAccessMode(PropertyAccessMode.Property);
+        }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Limilabs.FTP.Client;
 using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces.Requests;
+using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,36 +14,64 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
         [HttpPost("listdir")]
-        public string PostListdir([FromBody] Dictionary<string, string> data)
+        public async Task<IActionResult> PostListdir([FromBody] ListDirRequest data)
         {
 
             try
             {
                 using (Ftp client = new Ftp())
                 {
-                    client.Connect(data["host"]);
-                    client.Login(data["user"], data["pword"]);
+                    client.SendTimeout = TimeSpan.FromSeconds(10);
 
-                    List<FtpItem> items = client.GetList(data.ContainsKey("path") ? data["path"] : "");
-                    List<Dictionary<string, string>> ordered = new List<Dictionary<string, string>>();
+                    Task task = Task.Run(() =>
+                    {
+                        
+                        try
+                        {
+                            if (data.Secure) { client.ConnectSSL(data.Host); }
+                            else { client.Connect(data.Host); }
+                        }
+                        catch (FtpException)
+                        {}
+                    });
+                    if (!task.Wait(TimeSpan.FromSeconds(10)))
+                    {
+                        return Ok(new ListDirResponse()
+                        {
+                            Result = false,
+                            Errors = new List<string>() { "Timed out." }
+                        });
+                    }
+
+                    client.Login(data.Username, data.Password);
+
+                    List<FtpItem> items = client.GetList(data.Path);
+                    List<DirList> dirList = new List<DirList>();
 
                     foreach (FtpItem item in items)
                     {
                         if (item.IsCurrentFolder || item.IsParentFolder) { continue; }
-                        Dictionary<string, string> toAdd = new Dictionary<string, string>();
-                        toAdd.Add("name", item.Name);
-                        toAdd.Add("modify", item.ModifyDate.ToString("MM/dd/yyyy H:mm"));
-                        toAdd.Add("size", item.Size.ToString());
-                        toAdd.Add("type", item.IsFolder ? "dir" : "file");
-                        ordered.Add(toAdd);
+                        DirList toAdd = new DirList() {
+                            Name = item.Name,
+                            Modify = item.ModifyDate.ToString("MM/dd/yyyy H:mm"),
+                            Size = item.Size.ToString(),
+                            Type = item.IsFolder ? "dir" : "file"
+                        };
+                        dirList.Add(toAdd);
                     }
 
-                    return JsonSerializer.Serialize(ordered);
+                    return Ok(new ListDirResponse() {
+                        Result = true,
+                        DirList = dirList
+                    });
                 }
             }
             catch (FtpException ex)
             {
-                return JsonSerializer.Serialize(ex.Message);
+                return Ok(new ListDirResponse() { 
+                    Result = false,
+                    Errors = new List<string>() { ex.Message == "Please connect first." ? "Can't connect." : ex.Message }
+                });
             }
         }
     }

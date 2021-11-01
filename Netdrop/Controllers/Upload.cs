@@ -36,11 +36,10 @@ namespace Netdrop.Controllers
                     {
                         await file.CopyToAsync(fileStream);
 #pragma warning disable CS4014
-                        Task.Run(() => { UploadToFtp(fileNames, localFileNames, data); });
                     }
                 }
             }
-
+            Task.Run(() => { UploadToFtp(fileNames, localFileNames, data); });
             string jsonFileNames = JsonSerializer.Serialize(localFileNames);
             UploadProgress[jsonFileNames] = 0;
 
@@ -60,31 +59,45 @@ namespace Netdrop.Controllers
 
             for (int i = 0; i < filenames.Count; i++)
             {
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + data["host"] + data["path"] + '/' + filenames[i]);
+                try
+                {
+                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + data["host"] + data["path"] + '/' + filenames[i]);
                 request.Credentials = new NetworkCredential(data["user"], data["pword"]);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
                 request.ContentLength = new FileInfo(localFilenames[i]).Length;
                 request.UseBinary = true;
                 request.UsePassive = true;
-                request.KeepAlive = false;
+                request.Timeout = -1;
 
                 using (Stream fileStream = System.IO.File.OpenRead(localFilenames[i]))
                 using (Stream ftpStream = request.GetRequestStream())
                 {
 
-                    byte[] buffer = new byte[20480];
+                    byte[] buffer = new byte[40961];
                     int read;
                     while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0)
                     {
-                        ftpStream.WriteAsync(buffer, 0, read);
-                        UploadProgress[jsonFileNames] = (int)Math.Floor((double)(totalUploaded + fileStream.Position) * 100 / totalSize);
-                        Console.WriteLine(UploadProgress[jsonFileNames]);
+                        ftpStream.Write(buffer, 0, read);
+                        UploadProgress[jsonFileNames] = (int)Math.Floor((double)((totalUploaded + fileStream.Position) * 100 / totalSize));
                     }
-                    totalUploaded += new FileInfo(localFilenames[i]).Length;
+                    totalUploaded += fileStream.Position;
                     UploadProgress[jsonFileNames] = (int)Math.Floor((double)totalUploaded * 100 / totalSize);
                 }
+                }
+                catch (Exception)
+                {
+                    UploadProgress[jsonFileNames] = -1;
+                    return;
+                }
+                
             }
             
+        }
+
+        [HttpPost("checkupload")]
+        public string PostCheckUpload([FromBody] string jsonString)
+        {
+            return JsonSerializer.Serialize(UploadProgress.ContainsKey(jsonString) ? UploadProgress[jsonString] : 0);
         }
 
     }
