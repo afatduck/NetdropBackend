@@ -13,7 +13,12 @@ namespace Netdrop.Models
         private string _password;
 
         [Key]
+        [JsonIgnore]
         public int Id { get; set; }
+
+        [Required]
+        public string Name { get; set; }
+
         [Required]
         public string Host { get; set; }
         

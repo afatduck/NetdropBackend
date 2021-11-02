@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Netdrop.Interfaces.Requests
 {
-    public class ListDirRequest : NewCredentialRequest
+    public class ListDirRequest : ListDirBase
     {
         public string Path { get; set; }
     }

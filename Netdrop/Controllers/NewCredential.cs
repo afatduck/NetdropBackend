@@ -23,6 +23,7 @@ namespace Netdrop.Controllers
             ApplicationUser user = await _userManager.FindByNameAsync(username);
             await _context.SavedCredentials.AddAsync(new SavedCredentials()
             {
+                Name = newCredential.Name,
                 Host = newCredential.Host,
                 Username = newCredential.Username,
                 Password = newCredential.Password,

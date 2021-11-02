@@ -5,11 +5,8 @@ using System.Threading.Tasks;
 
 namespace Netdrop.Interfaces.Requests
 {
-    public class NewCredentialRequest
+    public class NewCredentialRequest : ListDirBase
     {
-        public string Host { get; set; }
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public bool Secure { get; set; }
+        public string Name { get; set; }
     }
 }
