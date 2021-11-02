@@ -28,6 +28,10 @@ namespace Netdrop
                             listenOptions.UseHttps("cert.pfx", "1");
                         });
 
+                        options.Listen(IPAddress.Loopback, 5009, listenOptions => {
+                            listenOptions.UseHttps("localhost.pfx", "1");
+                        });
+
                         options.Listen(IPAddress.Any, 5008);
 
                     });
