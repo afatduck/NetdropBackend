@@ -59,11 +59,10 @@ namespace Netdrop.Controllers
                 });
             }
 
-            return new JsonResult(new RegistrationResponse() {
+            return Ok(new RegistrationResponse() {
                 Result = false,
                 Errors = isCreated.Errors.Select(x => x.Description).ToList()
-            })
-            { StatusCode = 500 };
+            });
 
         }
     }
