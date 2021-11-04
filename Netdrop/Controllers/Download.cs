@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MimeMapping;
+using Netdrop.Interfaces;
+using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,45 +16,51 @@ namespace Netdrop.Controllers
     {
 
         [HttpPost("download")]
-        public string PostDownload([FromBody] Dictionary<string, string> data)
+        public IActionResult PostDownload([FromBody] BaseFtpRequest data)
         {
-            Dictionary<string, string> response = new Dictionary<string, string>();
 
             try
             {
 
-                string filename = data["path"].Substring(data["path"].LastIndexOf('/') + 1);
+                string filename = data.Host.Substring(data.Host.LastIndexOf('/') + 1);
                 filename = "tmp/" + DateTime.Now.ToString("mmfffffff") + filename;
 
-                Uri uri = new Uri("ftp://" + data["path"]);
+                Uri uri = new Uri("ftp://" + data.Host);
 
-                using (WebClient req = new WebClient())
+                using (WebClient client = new WebClient())
                 {
-                    req.Credentials = new NetworkCredential(data["user"], data["pword"]);
-                    req.DownloadDataCompleted += DownloadComplete;
-                    req.DownloadProgressChanged += DownloadChange;
-                    req.DownloadDataAsync(uri, filename);
+                    client.Credentials = new NetworkCredential(data.Username, data.Password);
+                    client.DownloadDataCompleted += DownloadComplete;
+                    client.DownloadProgressChanged += DownloadChange;
+                    client.DownloadDataAsync(uri, filename);
                 }
 
-                FtpWebRequest req2 = (FtpWebRequest)WebRequest.Create(uri);
-                req2.Credentials = new NetworkCredential(data["user"], data["pword"]);
-                req2.Method = WebRequestMethods.Ftp.GetFileSize;
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(uri);
+                req.Credentials = new NetworkCredential(data.Username, data.Password);
+                req.Method = WebRequestMethods.Ftp.GetFileSize;
 
-                response["url"] = filename;
-                response["size"] = req2.GetResponse().ContentLength.ToString();
-                response["mime"] = MimeUtility.GetMimeMapping(filename);
-
-                return JsonSerializer.Serialize(response);
-
+                return Ok(new DownloadResponse()
+                {
+                    Result = true,
+                    Url = filename,
+                    Size = req.GetResponse().ContentLength,
+                    Mime = MimeUtility.GetMimeMapping(filename)
+                });
 
             }
             catch (WebException ex)
             {
 
-                response["error"] = ex.Message;
-                return JsonSerializer.Serialize(response);
+                Ok(new DownloadResponse()
+                {
+                    Result = false,
+                    Errors = new List<string>() { ex.Message }
+                });
 
             }
+
+            return BadRequest();
+
         }
     }
 }

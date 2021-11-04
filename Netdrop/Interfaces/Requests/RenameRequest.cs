@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Netdrop.Interfaces.Requests
 {
-    public class ListDirRequest : ListDirBase
+    public class RenameRequest : FtpRequestWithPath
     {
-        public string Path { get; set; }
+        public string Name { get; set; }
     }
 }

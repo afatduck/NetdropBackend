@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -16,9 +17,14 @@ namespace Netdrop.Controllers
         public static Dictionary<string, long> downloadProgress = new Dictionary<string, long>();
 
         [HttpPost("progress")]
-        public string PostProgress([FromBody] string file)
+        public IActionResult PostProgress([FromBody] string file)
         {
-            return JsonSerializer.Serialize(downloadProgress.ContainsKey(file) ? downloadProgress[file] : 0);
+            long progress = downloadProgress.ContainsKey(file) ? downloadProgress[file] : 0;
+            return Ok(new ProgressResponse()
+            {
+                Result = progress != -1,
+                Done = progress
+            });
         }
 
         static async void DownloadComplete(object sender, DownloadDataCompletedEventArgs e)
@@ -32,7 +38,7 @@ namespace Netdrop.Controllers
                 }
                 downloadProgress[(string)e.UserState]++;
             }
-            catch (TargetInvocationException) {}
+            catch (Exception) { downloadProgress[(string)e.UserState] = -1; }
         }
 
         protected void DownloadChange(object sender, DownloadProgressChangedEventArgs e)

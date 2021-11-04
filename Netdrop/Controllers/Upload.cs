@@ -19,7 +19,7 @@ namespace Netdrop.Controllers
         [HttpPost("upload")]
         [RequestSizeLimit(10L * 1024L * 1024L * 1024L)]
         [RequestFormLimits(MultipartBodyLengthLimit = 10L * 1024L * 1024L * 1024L)]
-        public async Task<ActionResult<string>> PostUpload([FromForm] IList<IFormFile> files, [FromForm] string dataJson)
+        public async Task<IActionResult> PostUpload([FromForm] IList<IFormFile> files, [FromForm] string dataJson)
         {
             Dictionary<string, string> data = JsonSerializer.Deserialize<Dictionary<string, string>>(dataJson);
             List<string> fileNames = new List<string>();
@@ -43,7 +43,7 @@ namespace Netdrop.Controllers
             string jsonFileNames = JsonSerializer.Serialize(localFileNames);
             UploadProgress[jsonFileNames] = 0;
 
-            return jsonFileNames;
+            return Ok(jsonFileNames);
         }
 
         private void UploadToFtp(List<string> filenames, List<string> localFilenames, Dictionary<string, string> data)
@@ -61,7 +61,7 @@ namespace Netdrop.Controllers
             {
                 try
                 {
-                    FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + data["host"] + data["path"] + '/' + filenames[i]);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + data["host"] + '/' + filenames[i]);
                 request.Credentials = new NetworkCredential(data["user"], data["pword"]);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
                 request.ContentLength = new FileInfo(localFilenames[i]).Length;
@@ -95,9 +95,9 @@ namespace Netdrop.Controllers
         }
 
         [HttpPost("checkupload")]
-        public string PostCheckUpload([FromBody] string jsonString)
+        public IActionResult PostCheckUpload([FromBody] string jsonString)
         {
-            return JsonSerializer.Serialize(UploadProgress.ContainsKey(jsonString) ? UploadProgress[jsonString] : 0);
+            return Ok(UploadProgress.ContainsKey(jsonString) ? UploadProgress[jsonString] : 0);
         }
 
     }

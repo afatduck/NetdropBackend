@@ -14,7 +14,7 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
         [HttpPost("listdir")]
-        public async Task<IActionResult> PostListdir([FromBody] ListDirRequest data)
+        public IActionResult PostListdir([FromBody] FtpRequestWithPath data)
         {
 
             try

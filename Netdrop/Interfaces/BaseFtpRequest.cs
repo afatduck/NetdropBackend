@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Netdrop.Interfaces
 {
-    public class ListDirBase
+    public class BaseFtpRequest
     {
         public string Host { get; set; }
         public string Username { get; set; }

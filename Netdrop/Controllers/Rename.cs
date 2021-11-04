@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces.Requests;
+using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,24 +13,28 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
         [HttpPost("rename")]
-        public async Task<ActionResult<string>> PostRename([FromBody] Dictionary<string, string> data)
+        public async Task<IActionResult> PostRename([FromBody] RenameRequest data)
         {
             try
             {
 
-                FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://" + data["host"] + data["path"]);
-                req.Credentials = new NetworkCredential(data["user"], data["pword"]);
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://" + data.Host + data.Path);
+                req.Credentials = new NetworkCredential(data.Username, data.Password);
                 req.Method = WebRequestMethods.Ftp.Rename;
-                req.RenameTo = data["path"].Substring(0, data["path"].LastIndexOf('/') + 1) + data["name"];
+                req.RenameTo = data.Path.Substring(0, data.Path.LastIndexOf('/') + 1) + data.Name;
                 await req.GetResponseAsync();
 
             }
             catch (WebException ex)
             {
 
-                return ex.Message;
+                return Ok(new ResultBase() 
+                { 
+                    Result = false,
+                    Errors = new List<string>() { ex.Message }
+                });
             }
-            return "";
+            return Ok(new ResultBase() { Result = true });
         }
     }
 }

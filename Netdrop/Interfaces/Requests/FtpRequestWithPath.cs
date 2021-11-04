@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace Netdrop.Interfaces.Requests
 {
-    public class NewCredentialRequest : BaseFtpRequest
+    public class FtpRequestWithPath : BaseFtpRequest
     {
-        public string Name { get; set; }
+        public string Path { get; set; }
     }
 }
