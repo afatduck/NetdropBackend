@@ -36,5 +36,40 @@ namespace Netdrop.Controllers
                 Result = true
             });
         }
+
+        public async Task<bool> CreateDir(string url, string username, string password)
+        {
+
+            try
+            {
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(url);
+                req.Credentials = new NetworkCredential(username, password);
+                req.Method = WebRequestMethods.Ftp.ListDirectory;
+                FtpWebResponse res = (FtpWebResponse)await req.GetResponseAsync();
+                return true;
+            }
+            catch (WebException ex)
+            {
+                FtpWebResponse res = (FtpWebResponse)ex.Response;
+                if (res.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable) { return await CreateDir(url.Remove(url.LastIndexOf('/')), username, password); }
+            }
+
+            try
+            {
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(url);
+                req.Credentials = new NetworkCredential(username, password);
+                req.Method = WebRequestMethods.Ftp.MakeDirectory;
+                FtpWebResponse res = (FtpWebResponse) await req.GetResponseAsync();
+                return true;
+
+            }
+            catch (WebException)
+            {
+
+            }
+
+            return false;
+        }
+
     }
 }

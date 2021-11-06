@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -24,12 +25,14 @@ namespace Netdrop.Controllers
             Dictionary<string, string> data = JsonSerializer.Deserialize<Dictionary<string, string>>(dataJson);
             List<string> fileNames = new List<string>();
             List<string> localFileNames = new List<string>();
+            HashSet<string> dirs = new HashSet<string>();
 
             foreach (IFormFile file in files)
             {
                 if (file.Length > 0)
                 {
-                    string filePath = Path.Combine("tmp", DateTime.Now.ToString("mmfffffff") + file.FileName);
+                    string filePath = Path.Combine("tmp", DateTime.Now.ToString("hhmmssfffffff") + file.FileName);
+                    if (file.FileName.Contains('/')) { dirs.Add(file.FileName.Remove(file.FileName.LastIndexOf('/'))); }
                     fileNames.Add(file.FileName);
                     localFileNames.Add(filePath);
                     using (Stream fileStream = new FileStream(filePath, FileMode.Create))
@@ -39,18 +42,34 @@ namespace Netdrop.Controllers
                     }
                 }
             }
-            Task.Run(() => { UploadToFtp(fileNames, localFileNames, data); });
-            string jsonFileNames = JsonSerializer.Serialize(localFileNames);
-            UploadProgress[jsonFileNames] = 0;
 
-            return Ok(jsonFileNames);
+            foreach (string dir in dirs)
+            {
+                Console.WriteLine(dir);
+                if (! await CreateDir("ftp://" + data["host"] + '/' + dir, data["username"], data["password"]))
+                {
+                    return Ok(new UploadResponse()
+                    {
+                        Result = false,
+                        Errors = new List<string>() { "Something went wrong. "}
+                    });
+                }
+            }
+
+            string code = DateTime.Now.ToString("hhmmssfffffff");
+            UploadProgress[code] = 0;
+            Task.Run(() => { UploadToFtp(fileNames, localFileNames, data, code); });
+
+            return Ok(new UploadResponse() { 
+                Result = true,
+                Code = code
+            });
         }
 
-        private void UploadToFtp(List<string> filenames, List<string> localFilenames, Dictionary<string, string> data)
+        private void UploadToFtp(List<string> filenames, List<string> localFilenames, Dictionary<string, string> data, string code)
         {
             long totalSize = 0L;
             long totalUploaded = 0L;
-            string jsonFileNames = JsonSerializer.Serialize(localFilenames);
 
             foreach (string f in localFilenames.ToList())
             {
@@ -78,15 +97,15 @@ namespace Netdrop.Controllers
                     while ((read = fileStream.Read(buffer, 0, buffer.Length)) > 0)
                     {
                         ftpStream.Write(buffer, 0, read);
-                        UploadProgress[jsonFileNames] = (int)Math.Floor((double)((totalUploaded + fileStream.Position) * 100 / totalSize));
+                        UploadProgress[code] = (int)Math.Floor((double)((totalUploaded + fileStream.Position) * 100 / totalSize));
                     }
                     totalUploaded += fileStream.Position;
-                    UploadProgress[jsonFileNames] = (int)Math.Floor((double)totalUploaded * 100 / totalSize);
+                    UploadProgress[code] = (int)Math.Floor((double)totalUploaded * 100 / totalSize);
                 }
                 }
                 catch (Exception)
                 {
-                    UploadProgress[jsonFileNames] = -1;
+                    UploadProgress[code] = -1;
                     return;
                 }
                 

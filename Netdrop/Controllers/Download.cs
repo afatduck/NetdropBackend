@@ -23,7 +23,7 @@ namespace Netdrop.Controllers
             {
 
                 string filename = data.Host.Substring(data.Host.LastIndexOf('/') + 1);
-                filename = "tmp/" + DateTime.Now.ToString("mmfffffff") + filename;
+                filename = "tmp/" + DateTime.Now.ToString("hhmmssfffffff") + filename;
 
                 Uri uri = new Uri("ftp://" + data.Host);
 
