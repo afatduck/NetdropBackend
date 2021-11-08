@@ -30,6 +30,9 @@ namespace Netdrop.Models
         }
 
         [Required]
+        public int Port { get; set; }
+
+        [Required]
         public bool Secure { get; set; } = false;
 
         [JsonIgnore]

@@ -18,7 +18,7 @@ namespace Netdrop.Controllers
             try
             {
 
-                FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://" + data.Host + data.Path);
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create($"ftp://{data.Host}:{data.Port}{data.Path}");
                 req.Credentials = new NetworkCredential(data.Username, data.Password);
                 req.Method = WebRequestMethods.Ftp.Rename;
                 req.RenameTo = data.Path.Substring(0, data.Path.LastIndexOf('/') + 1) + data.Name;

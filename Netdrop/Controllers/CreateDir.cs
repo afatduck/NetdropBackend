@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FluentFTP;
+using Microsoft.AspNetCore.Mvc;
 using Netdrop.Interfaces;
 using Netdrop.Interfaces.Responses;
 using System;
@@ -18,13 +19,15 @@ namespace Netdrop.Controllers
             try
             {
 
-                FtpWebRequest req = (FtpWebRequest)WebRequest.Create("ftp://" + data.Host);
-                req.Credentials = new NetworkCredential(data.Username, data.Password);
-                req.Method = WebRequestMethods.Ftp.MakeDirectory;
-                await req.GetResponseAsync();
+                FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
+                await client.ConnectAsync();
+                client.SslProtocols = System.Security.Authentication.SslProtocols.None;
+                client.EncryptionMode = data.Secure ? FtpEncryptionMode.Auto : FtpEncryptionMode.None;
+                client.ValidateAnyCertificate = true;
+                await client.CreateDirectoryAsync(data.Path);
 
             }
-            catch (WebException ex)
+            catch (Exception ex)
             {
                 return Ok(new ResultBase() { 
                     Result = false,
@@ -37,22 +40,8 @@ namespace Netdrop.Controllers
             });
         }
 
-        public async Task<bool> CreateDir(string url, string username, string password)
+        public async Task CreateDir(string url, string username, string password)
         {
-
-            try
-            {
-                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(url);
-                req.Credentials = new NetworkCredential(username, password);
-                req.Method = WebRequestMethods.Ftp.ListDirectory;
-                FtpWebResponse res = (FtpWebResponse)await req.GetResponseAsync();
-                return true;
-            }
-            catch (WebException ex)
-            {
-                FtpWebResponse res = (FtpWebResponse)ex.Response;
-                if (res.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable) { return await CreateDir(url.Remove(url.LastIndexOf('/')), username, password); }
-            }
 
             try
             {
@@ -60,15 +49,14 @@ namespace Netdrop.Controllers
                 req.Credentials = new NetworkCredential(username, password);
                 req.Method = WebRequestMethods.Ftp.MakeDirectory;
                 FtpWebResponse res = (FtpWebResponse) await req.GetResponseAsync();
-                return true;
 
             }
-            catch (WebException)
+            catch (WebException ex)
             {
-
+                FtpWebResponse res = (FtpWebResponse)ex.Response;
+                if (res.StatusCode == FtpStatusCode.ActionNotTakenFileUnavailable) { await CreateDir(url.Remove(url.LastIndexOf('/')), username, password); }
             }
 
-            return false;
         }
 
     }

@@ -1,11 +1,13 @@
 ﻿using Limilabs.FTP.Client;
 using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces;
 using Netdrop.Interfaces.Requests;
 using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Net.Security;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -14,7 +16,7 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
         [HttpPost("listdir")]
-        public IActionResult PostListdir([FromBody] FtpRequestWithPath data)
+        public IActionResult PostListdir([FromBody] BaseFtpRequest data)
         {
 
             try
@@ -24,13 +26,16 @@ namespace Netdrop.Controllers
 
                     Task task = Task.Run(() =>
                     {
-                        
+
+                        client.ServerCertificateValidate += ValidateCertificate;
+
                         try
                         {
-                            if (data.Secure) { client.ConnectSSL(data.Host); }
-                            else { client.Connect(data.Host); }
+                            if (data.Secure) { client.ConnectSSL(data.Host, data.Port); }
+                            else { client.Connect(data.Host, data.Port); }
+                            client.AuthTLS();
                         }
-                        catch (FtpException)
+                        catch (Exception)
                         {}
                     });
                     if (!task.Wait(TimeSpan.FromSeconds(10)))
@@ -41,7 +46,7 @@ namespace Netdrop.Controllers
                             Errors = new List<string>() { "Timed out." }
                         });
                     }
-
+                    
                     client.Login(data.Username, data.Password);
 
                     List<FtpItem> items = client.GetList(data.Path);
@@ -65,7 +70,7 @@ namespace Netdrop.Controllers
                     });
                 }
             }
-            catch (FtpException ex)
+            catch (Exception ex)
             {
                 return Ok(new ListDirResponse() { 
                     Result = false,
@@ -73,5 +78,6 @@ namespace Netdrop.Controllers
                 });
             }
         }
+
     }
 }

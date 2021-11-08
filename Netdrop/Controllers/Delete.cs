@@ -1,5 +1,6 @@
-﻿using Limilabs.FTP.Client;
+﻿using FluentFTP;
 using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces;
 using Netdrop.Interfaces.Requests;
 using Netdrop.Interfaces.Responses;
 using System;
@@ -13,21 +14,18 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
         [HttpPost("delete")]
-        public IActionResult PostDelete([FromBody] FtpRequestWithPath data)
+        public async Task<IActionResult> PostDelete([FromBody] BaseFtpRequest data)
         {
             try
             {
-                using (Ftp client = new Ftp())
-                {
-                    client.Connect(data.Host);
-                    client.Login(data.Username, data.Password);
-                    if (client.FolderExists(data.Path)) {
-                        client.DeleteFolderRecursively(data.Path);
-                    }
-                    else { client.DeleteFile(data.Path); }
-                }
+                FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
+                await client.ConnectAsync();
+                client.SslProtocols = System.Security.Authentication.SslProtocols.None;
+                client.EncryptionMode = data.Secure ? FtpEncryptionMode.Auto : FtpEncryptionMode.None;
+                client.ValidateAnyCertificate = true;
+                await client.DeleteDirectoryAsync(data.Path);
             }
-            catch (FtpException ex)
+            catch (Exception ex)
             {
                 return Ok(new ResultBase() { 
                     Errors = new List<string>() { ex.Message },

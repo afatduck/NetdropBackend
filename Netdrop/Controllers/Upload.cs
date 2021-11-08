@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Netdrop.Interfaces;
 using Netdrop.Interfaces.Responses;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,7 @@ namespace Netdrop.Controllers
         [RequestFormLimits(MultipartBodyLengthLimit = 10L * 1024L * 1024L * 1024L)]
         public async Task<IActionResult> PostUpload([FromForm] IList<IFormFile> files, [FromForm] string dataJson)
         {
-            Dictionary<string, string> data = JsonSerializer.Deserialize<Dictionary<string, string>>(dataJson);
+            BaseFtpRequest data = JsonSerializer.Deserialize<BaseFtpRequest>(dataJson);
             List<string> fileNames = new List<string>();
             List<string> localFileNames = new List<string>();
             HashSet<string> dirs = new HashSet<string>();
@@ -45,15 +46,7 @@ namespace Netdrop.Controllers
 
             foreach (string dir in dirs)
             {
-                Console.WriteLine(dir);
-                if (! await CreateDir("ftp://" + data["host"] + '/' + dir, data["username"], data["password"]))
-                {
-                    return Ok(new UploadResponse()
-                    {
-                        Result = false,
-                        Errors = new List<string>() { "Something went wrong. "}
-                    });
-                }
+                await CreateDir($"ftp://{data.Host}:{data.Port}{data.Path}/{dir}", data.Username , data.Password);
             }
 
             string code = DateTime.Now.ToString("hhmmssfffffff");
@@ -66,7 +59,7 @@ namespace Netdrop.Controllers
             });
         }
 
-        private void UploadToFtp(List<string> filenames, List<string> localFilenames, Dictionary<string, string> data, string code)
+        private void UploadToFtp(List<string> filenames, List<string> localFilenames, BaseFtpRequest data, string code)
         {
             long totalSize = 0L;
             long totalUploaded = 0L;
@@ -80,8 +73,8 @@ namespace Netdrop.Controllers
             {
                 try
                 {
-                FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://" + data["host"] + '/' + filenames[i]);
-                request.Credentials = new NetworkCredential(data["user"], data["pword"]);
+                FtpWebRequest request = (FtpWebRequest)WebRequest.Create($"ftp://{data.Host}:{data.Port}{data.Path}/{filenames[i]}");
+                request.Credentials = new NetworkCredential(data.Username, data.Password);
                 request.Method = WebRequestMethods.Ftp.UploadFile;
                 request.ContentLength = new FileInfo(localFilenames[i]).Length;
                 request.UseBinary = true;
@@ -103,10 +96,9 @@ namespace Netdrop.Controllers
                     UploadProgress[code] = (int)Math.Floor((double)totalUploaded * 100 / totalSize);
                 }
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
-                    Console.WriteLine(ex.Message);
-                    UploadProgress[jsonFileNames] = -1;
+                    UploadProgress[code] = -1;
                     return;
                 }
                 
@@ -115,9 +107,9 @@ namespace Netdrop.Controllers
         }
 
         [HttpPost("checkupload")]
-        public IActionResult PostCheckUpload([FromBody] string jsonString)
+        public IActionResult PostCheckUpload([FromBody] string code)
         {
-            return Ok(UploadProgress.ContainsKey(jsonString) ? UploadProgress[jsonString] : 0);
+            return Ok(UploadProgress.ContainsKey(code) ? UploadProgress[code] : 0);
         }
 
     }

@@ -25,7 +25,7 @@ namespace Netdrop.Controllers
                 string filename = data.Host.Substring(data.Host.LastIndexOf('/') + 1);
                 filename = "tmp/" + DateTime.Now.ToString("hhmmssfffffff") + filename;
 
-                Uri uri = new Uri("ftp://" + data.Host);
+                Uri uri = new Uri($"ftp{(data.Secure ? "s" : "")}://{data.Host}:{data.Port}{data.Path}");
 
                 using (WebClient client = new WebClient())
                 {
@@ -35,8 +35,9 @@ namespace Netdrop.Controllers
                     client.DownloadDataAsync(uri, filename);
                 }
 
-                FtpWebRequest req = (FtpWebRequest)WebRequest.Create(uri);
+                FtpWebRequest req = (FtpWebRequest)WebRequest.Create($"ftp{(data.Secure ? "s" : "")}://{data.Host}:{data.Port}{data.Path}");
                 req.Credentials = new NetworkCredential(data.Username, data.Password);
+                req.EnableSsl = data.Secure;
                 req.Method = WebRequestMethods.Ftp.GetFileSize;
 
                 return Ok(new DownloadResponse()
@@ -48,7 +49,7 @@ namespace Netdrop.Controllers
                 });
 
             }
-            catch (WebException ex)
+            catch (Exception ex)
             {
 
                 Ok(new DownloadResponse()
@@ -63,4 +64,5 @@ namespace Netdrop.Controllers
 
         }
     }
+
 }
