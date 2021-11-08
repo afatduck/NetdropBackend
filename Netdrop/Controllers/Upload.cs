@@ -31,7 +31,7 @@ namespace Netdrop.Controllers
             {
                 if (file.Length > 0)
                 {
-                    string filePath = Path.Combine("tmp", DateTime.Now.ToString("hhmmssfffffff") + file.FileName);
+                    string filePath = Path.Combine("tmp", DateTime.Now.ToString("hhmmssfffffff") + file.FileName.Substring(file.FileName.LastIndexOf('/') + 1));
                     if (file.FileName.Contains('/')) { dirs.Add(file.FileName.Remove(file.FileName.LastIndexOf('/'))); }
                     fileNames.Add(file.FileName);
                     localFileNames.Add(filePath);
@@ -103,9 +103,10 @@ namespace Netdrop.Controllers
                     UploadProgress[code] = (int)Math.Floor((double)totalUploaded * 100 / totalSize);
                 }
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
-                    UploadProgress[code] = -1;
+                    Console.WriteLine(ex.Message);
+                    UploadProgress[jsonFileNames] = -1;
                     return;
                 }
                 

@@ -21,7 +21,6 @@ namespace Netdrop.Controllers
             {
                 using (Ftp client = new Ftp())
                 {
-                    client.SendTimeout = TimeSpan.FromSeconds(10);
 
                     Task task = Task.Run(() =>
                     {
