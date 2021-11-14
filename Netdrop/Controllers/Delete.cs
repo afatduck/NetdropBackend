@@ -23,7 +23,7 @@ namespace Netdrop.Controllers
                 client.SslProtocols = System.Security.Authentication.SslProtocols.None;
                 client.EncryptionMode = data.Secure ? FtpEncryptionMode.Auto : FtpEncryptionMode.None;
                 client.ValidateAnyCertificate = true;
-                if (await client.FileExistsAsync(data.Path)) { await client.DeleteFileAsync(data.Path); }
+                if (!await client.DirectoryExistsAsync(data.Path)) { await client.DeleteFileAsync(data.Path); }
                 else { await client.DeleteDirectoryAsync(data.Path); }
             }
             catch (Exception ex)
