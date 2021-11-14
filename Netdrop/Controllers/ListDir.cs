@@ -1,4 +1,4 @@
-﻿using Limilabs.FTP.Client;
+﻿using FluentFTP;
 using Microsoft.AspNetCore.Mvc;
 using Netdrop.Interfaces;
 using Netdrop.Interfaces.Requests;
@@ -16,50 +16,30 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
         [HttpPost("listdir")]
-        public IActionResult PostListdir([FromBody] BaseFtpRequest data)
+        public async Task<IActionResult> PostListdir([FromBody] BaseFtpRequest data)
         {
 
             try
             {
-                using (Ftp client = new Ftp())
-                {
 
-                    Task task = Task.Run(() =>
-                    {
 
-                        client.ServerCertificateValidate += ValidateCertificate;
+                    FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
+                    client.SslProtocols = System.Security.Authentication.SslProtocols.None;
+                    client.EncryptionMode = data.Secure ? FtpEncryptionMode.Auto : FtpEncryptionMode.None;
+                    client.ValidateAnyCertificate = true;
+                    await client.ConnectAsync();
 
-                        try
-                        {
-                            if (data.Secure) { client.ConnectSSL(data.Host, data.Port); }
-                            else { client.Connect(data.Host, data.Port); }
-                            client.AuthTLS();
-                        }
-                        catch (Exception)
-                        {}
-                    });
-                    if (!task.Wait(TimeSpan.FromSeconds(10)))
-                    {
-                        return Ok(new ListDirResponse()
-                        {
-                            Result = false,
-                            Errors = new List<string>() { "Timed out." }
-                        });
-                    }
-                    
-                    client.Login(data.Username, data.Password);
-
-                    List<FtpItem> items = client.GetList(data.Path);
+                    FtpListItem[] items = await client.GetListingAsync(data.Path);
                     List<DirList> dirList = new List<DirList>();
 
-                    foreach (FtpItem item in items)
+                    foreach (FtpListItem item in items)
                     {
-                        if (item.IsCurrentFolder || item.IsParentFolder) { continue; }
+                        if (item.Type == FtpFileSystemObjectType.Link || item.SubType == FtpFileSystemObjectSubType.SelfDirectory || item.SubType == FtpFileSystemObjectSubType.ParentDirectory) { continue; }
                         DirList toAdd = new DirList() {
                             Name = item.Name,
-                            Modify = item.ModifyDate.ToString("MM/dd/yyyy H:mm"),
+                            Modify = item.Modified.ToString("MM/dd/yyyy H:mm"),
                             Size = item.Size.ToString(),
-                            Type = item.IsFolder ? "dir" : "file"
+                            Type = item.Type == FtpFileSystemObjectType.Directory ? "dir" : "file"
                         };
                         dirList.Add(toAdd);
                     }
@@ -68,13 +48,12 @@ namespace Netdrop.Controllers
                         Result = true,
                         DirList = dirList
                     });
-                }
             }
             catch (Exception ex)
             {
                 return Ok(new ListDirResponse() { 
                     Result = false,
-                    Errors = new List<string>() { ex.Message == "Please connect first." ? "Can't connect." : ex.Message }
+                    Errors = new List<string>() { ex.Message }
                 });
             }
         }
