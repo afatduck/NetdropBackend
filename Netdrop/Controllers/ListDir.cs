@@ -21,12 +21,7 @@ namespace Netdrop.Controllers
 
             try
             {
-
-
-                    FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
-                    client.SslProtocols = System.Security.Authentication.SslProtocols.None;
-                    client.EncryptionMode = data.Secure ? FtpEncryptionMode.Auto : FtpEncryptionMode.None;
-                    client.ValidateAnyCertificate = true;
+                    FtpClient client = GetFtpClient(data);
                     await client.ConnectAsync();
 
                     FtpListItem[] items = await client.GetListingAsync(data.Path);
@@ -44,7 +39,9 @@ namespace Netdrop.Controllers
                         dirList.Add(toAdd);
                     }
 
-                    return Ok(new ListDirResponse() {
+                    client.Dispose();
+
+                     return Ok(new ListDirResponse() {
                         Result = true,
                         DirList = dirList
                     });

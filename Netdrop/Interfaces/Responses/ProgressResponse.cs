@@ -8,5 +8,7 @@ namespace Netdrop.Interfaces.Responses
     public class ProgressResponse : ResultBase
     {
         public long Done { get; set; }
+        public double Speed { get; set; }
+
     }
 }

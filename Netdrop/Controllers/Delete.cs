@@ -18,13 +18,11 @@ namespace Netdrop.Controllers
         {
             try
             {
-                FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
+                FtpClient client = GetFtpClient(data);
                 await client.ConnectAsync();
-                client.SslProtocols = System.Security.Authentication.SslProtocols.None;
-                client.EncryptionMode = data.Secure ? FtpEncryptionMode.Auto : FtpEncryptionMode.None;
-                client.ValidateAnyCertificate = true;
                 if (!await client.DirectoryExistsAsync(data.Path)) { await client.DeleteFileAsync(data.Path); }
                 else { await client.DeleteDirectoryAsync(data.Path); }
+                client.Dispose();
             }
             catch (Exception ex)
             {

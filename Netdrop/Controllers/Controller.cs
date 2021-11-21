@@ -11,8 +11,8 @@ using Microsoft.AspNetCore.Identity;
 using Netdrop.Configuration;
 using Microsoft.Extensions.Options;
 using Netdrop.Models;
-using Limilabs.FTP.Client;
-using System.Net.Security;
+using FluentFTP;
+using Netdrop.Interfaces;
 
 namespace Netdrop.Controllers
 {
@@ -31,7 +31,6 @@ namespace Netdrop.Controllers
             _userManager = userManager;
             _jwtConfig = optionsMonitor.CurrentValue;
             _context = context;
-            RegisterFtps();
         }
 
         [HttpGet]
@@ -40,35 +39,15 @@ namespace Netdrop.Controllers
             return Ok();
         }
 
-        private static void ValidateCertificate(
-            object sender,
-            ServerCertificateValidateEventArgs e)
+        private FtpClient GetFtpClient(BaseFtpRequest data)
         {
-            const SslPolicyErrors ignoredErrors =
-                SslPolicyErrors.RemoteCertificateChainErrors |
-                SslPolicyErrors.RemoteCertificateNameMismatch;
-
-            if ((e.SslPolicyErrors & ~ignoredErrors) == SslPolicyErrors.None)
-            {
-                e.IsValid = true;
-                return;
-            }
-            e.IsValid = false;
+            FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
+            client.DataConnectionEncryption = true;
+            client.SslProtocols = System.Security.Authentication.SslProtocols.None;
+            client.EncryptionMode = data.Secure ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None;
+            client.ValidateAnyCertificate = true;
+            return client;
         }
 
-        private void RegisterFtps()
-        {
-            WebRequest.RegisterPrefix("ftps", new FtpsWebRequestCreator());
-        }
-
-        private sealed class FtpsWebRequestCreator : IWebRequestCreate
-        {
-            public WebRequest Create(Uri uri)
-            {
-                FtpWebRequest webRequest = (FtpWebRequest)WebRequest.Create(uri.AbsoluteUri.Remove(3, 1));
-                webRequest.EnableSsl = true;
-                return webRequest;
-            }
-        }
     }
 }
