@@ -67,7 +67,10 @@ namespace Netdrop.Controllers
 
                         Action<FtpProgress> progress = delegate (FtpProgress p) {
                             UploadProgress[code] = (short)((soFar + p.Progress * fileSizes[i] / 100) / fileSizes.Sum() * 100);
-                            UploadSpeed[code] = p.TransferSpeed;
+                            if (p.TransferSpeed != 0)
+                            {
+                                UploadSpeed[code] = p.TransferSpeed;
+                            }
                         };           
                         
                             try

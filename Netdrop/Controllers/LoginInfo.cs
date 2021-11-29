@@ -25,6 +25,11 @@ namespace Netdrop.Controllers
 
             ApplicationUser user = await _userManager.FindByNameAsync(username);
 
+            if (user == null)
+            {
+                return BadRequest();
+            }
+
             return Ok(new UserData() { 
                 Username = username,
                 Credentials = user.SavedCredentials

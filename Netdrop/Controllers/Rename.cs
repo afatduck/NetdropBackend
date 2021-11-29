@@ -31,7 +31,7 @@ namespace Netdrop.Controllers
                 return Ok(new ResultBase() 
                 { 
                     Result = false,
-                    Errors = new List<string>() { ex.Message }
+                    Errors = new List<string>() { ex.InnerException.Message }
                 });
             }
             return Ok(new ResultBase() { Result = true });

@@ -11,6 +11,7 @@ namespace Netdrop.Interfaces.Responses
         public string Modify { get; set; }
         public string Type { get; set; }
         public string Size { get; set; }
+        public string Mime { get; set; }
     }
     public class ListDirResponse : ResultBase
     {

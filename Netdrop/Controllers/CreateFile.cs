@@ -13,15 +13,15 @@ namespace Netdrop.Controllers
 {
     public partial class NetdropController : ControllerBase
     {
-        [HttpPost("createdir")]
-        public async Task<IActionResult> PostCreateDir([FromBody] BaseFtpRequest data)
+        [HttpPost("createfile")]
+        public async Task<IActionResult> PostCreateFile([FromBody] BaseFtpRequest data)
         {
             try
             {
 
                 FtpClient client = GetFtpClient(data);
                 await client.ConnectAsync();
-                await client.CreateDirectoryAsync(data.Path);
+                await client.UploadAsync(new byte[0], data.Path, FtpRemoteExists.Skip, false);
                 client.Dispose();
 
             }

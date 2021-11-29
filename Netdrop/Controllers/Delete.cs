@@ -27,7 +27,7 @@ namespace Netdrop.Controllers
             catch (Exception ex)
             {
                 return Ok(new ResultBase() { 
-                    Errors = new List<string>() { ex.Message },
+                    Errors = new List<string>() { ex.InnerException != null ? ex.InnerException.Message : ex.Message },
                     Result = false
                 });
             }
