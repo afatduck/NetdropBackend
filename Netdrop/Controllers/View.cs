@@ -17,8 +17,8 @@ namespace Netdrop.Controllers
     public partial class NetdropController : ControllerBase
     {
 
-        [HttpPost("imageview")]
-        public async Task<IActionResult> PostImageView([FromBody] BaseFtpRequest data)
+        [HttpPost("view")]
+        public async Task<IActionResult> PostView([FromBody] BaseFtpRequest data)
         {
 
             try
@@ -34,7 +34,7 @@ namespace Netdrop.Controllers
 
                 client.Dispose();
 
-                return Ok(new ImageViewResponse()
+                return Ok(new ViewResponse()
                 {
                     Result = true,
                     Url = filename
@@ -44,7 +44,7 @@ namespace Netdrop.Controllers
             catch (FtpException ex)
             {
 
-                return Ok(new ImageViewResponse()
+                return Ok(new ViewResponse()
                 {
                     Result = false,
                     Errors = new List<string>() { ex.InnerException.Message }

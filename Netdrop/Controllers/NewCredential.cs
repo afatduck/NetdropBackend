@@ -28,6 +28,7 @@ namespace Netdrop.Controllers
                 Username = newCredential.Username,
                 Password = newCredential.Password,
                 Secure = newCredential.Secure,
+                Port = newCredential.Port,
                 ApplicationUser = user,
                 ApplicationUserId = user.Id
             });
