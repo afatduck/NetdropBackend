@@ -11,23 +11,23 @@ namespace Netdrop
     { 
         public static void StartInterval()
         {
-            var token = new CancellationTokenSource();
+
             Task.Run(async () => {
-                while (!token.IsCancellationRequested)
+                while (true)
                 {
                     CheckAndDelete();
-                    await Task.Delay(TimeSpan.FromSeconds(60 * 60), token.Token);
+                    await Task.Delay(TimeSpan.FromSeconds(60));
                 }
-            }, token.Token);
+            });
         }
         public static void CheckAndDelete()
         {
-            foreach (var f in Directory.GetFiles("tmp"))
+            foreach (string f in Directory.GetFiles("tmp"))
             {
                 try
                 {
                     DateTime lastMod = File.GetLastAccessTime(f);
-                    if (lastMod.AddHours(1).CompareTo(DateTime.Now) < 0)
+                    if (lastMod.AddMinutes(1).CompareTo(DateTime.Now) < 0)
                     {
                         File.Delete(f);
                     }

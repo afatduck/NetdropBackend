@@ -50,6 +50,8 @@ namespace Netdrop.Controllers
             client.ReadTimeout = 5000;
             client.DataConnectionConnectTimeout = 5000;
             client.DataConnectionReadTimeout = 5000;
+            client.SocketPollInterval = 5000;
+            client.DataConnectionType = FtpDataConnectionType.AutoPassive;
             return client;
         }
 

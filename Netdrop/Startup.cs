@@ -127,7 +127,7 @@ namespace Netdrop
                 endpoints.MapControllers();
             });
 
-            ClearTmp.CheckAndDelete();
+            ClearTmp.StartInterval();
 
         }
     }

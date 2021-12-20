@@ -35,7 +35,7 @@ namespace Netdrop.Controllers
                             Modify = item.Modified.ToString("MM/dd/yyyy H:mm"),
                             Size = item.Size.ToString(),
                             Type = item.Type == FtpFileSystemObjectType.Directory ? "dir" : "file",
-                            Mime = MimeMapping.MimeUtility.GetMimeMapping(item.Name)
+                            Mime = item.Type == FtpFileSystemObjectType.Directory ? "directory" : MimeMapping.MimeUtility.GetMimeMapping(item.Name)
                         };
                         dirList.Add(toAdd);
                     }
