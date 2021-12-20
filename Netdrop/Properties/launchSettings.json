@@ -1,5 +1,4 @@
-﻿{
-  "$schema": "http://json.schemastore.org/launchsettings.json",
+{
   "iisSettings": {
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
@@ -8,10 +7,10 @@
       "sslPort": 44362
     }
   },
+  "$schema": "http://json.schemastore.org/launchsettings.json",
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
-      "launchBrowser": false,
       "launchUrl": "api",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Production"
@@ -19,13 +18,21 @@
     },
     "Netdrop": {
       "commandName": "Project",
-      "dotnetRunMessages": "true",
-      "launchBrowser": false,
       "launchUrl": "api",
-      "applicationUrl": "https://0.0.0.0:5009;http://0.0.0.0:5008",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+      },
+      "dotnetRunMessages": "true",
+      "applicationUrl": "https://0.0.0.0:5009;http://0.0.0.0:5008"
+    },
+    "WSL": {
+      "commandName": "WSL2",
+      "launchUrl": "https://0.0.0.0:5009/api",
+      "environmentVariables": {
+        "ASPNETCORE_URLS": "https://0.0.0.0:5009;http://0.0.0.0:5008",
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "distributionName": ""
     }
   }
 }
