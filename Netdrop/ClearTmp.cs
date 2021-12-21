@@ -34,6 +34,19 @@ namespace Netdrop
                 }
                 catch (IOException) { }
             }
+
+            foreach (string f in Directory.GetDirectories("tmp"))
+            {
+                try
+                {
+                    DateTime lastMod = Directory.GetLastAccessTime("tmp/" + f);
+                    if (lastMod.AddMinutes(1).CompareTo(DateTime.Now) < 0)
+                    {
+                        Directory.Delete(f, true);
+                    }
+                }
+                catch (IOException) { }
+            }
         }
     }
 }

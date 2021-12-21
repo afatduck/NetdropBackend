@@ -29,7 +29,7 @@ namespace Netdrop.Controllers
             {
                 return Ok(new ResultBase() { 
                     Result = false,
-                    Errors = new List<string>() { ex.InnerException.Message }
+                    Errors = new List<string>() { ex.InnerException != null ? ex.InnerException.Message : ex.Message }
                 });
             }
             return Ok(new ResultBase()

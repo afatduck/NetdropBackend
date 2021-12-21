@@ -10,5 +10,7 @@ namespace Netdrop.Interfaces.Responses
         public long Done { get; set; }
         public double Speed { get; set; }
 
+        public bool Complete { get; set; }
+
     }
 }
