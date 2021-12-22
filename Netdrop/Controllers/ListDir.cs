@@ -22,7 +22,7 @@ namespace Netdrop.Controllers
             try
             {
                     FtpClient client = GetFtpClient(data);
-                    await client.ConnectAsync();
+                    await client.AutoConnectAsync();
 
                     FtpListItem[] items = await client.GetListingAsync(data.Path);
                     List<DirList> dirList = new List<DirList>();
