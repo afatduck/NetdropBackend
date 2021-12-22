@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 using Netdrop.Models;
 using FluentFTP;
 using Netdrop.Interfaces;
+using FluentFTP.Helpers;
 
 namespace Netdrop.Controllers
 {
@@ -52,6 +53,7 @@ namespace Netdrop.Controllers
             client.DataConnectionConnectTimeout = 2000;
             client.DataConnectionReadTimeout = 2000;
             client.DataConnectionType = FtpDataConnectionType.AutoPassive;
+            FtpTrace.LogToConsole = true;
             return client;
         }
 
