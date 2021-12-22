@@ -46,11 +46,11 @@ namespace Netdrop.Controllers
             client.SslProtocols = System.Security.Authentication.SslProtocols.None;
             client.EncryptionMode = data.Secure ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None;
             client.ValidateAnyCertificate = true;
-            client.ConnectTimeout = 5000;
-            client.ReadTimeout = 5000;
-            client.DataConnectionConnectTimeout = 5000;
-            client.DataConnectionReadTimeout = 5000;
-            client.SocketPollInterval = 5000;
+            client.SocketPollInterval = 1000;
+            client.ConnectTimeout = 2000;
+            client.ReadTimeout = 2000;
+            client.DataConnectionConnectTimeout = 2000;
+            client.DataConnectionReadTimeout = 2000;
             client.DataConnectionType = FtpDataConnectionType.AutoPassive;
             return client;
         }
