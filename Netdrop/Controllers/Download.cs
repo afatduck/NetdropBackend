@@ -43,6 +43,15 @@ namespace Netdrop.Controllers
                 FtpClient client = GetFtpClient(data);
                 await client.ConnectAsync();
 
+                long total = 0;
+
+                foreach (FtpListItem item in await client.GetListingAsync(data.Path, FtpListOption.Recursive))
+                {
+                    total += item.Size;
+                }
+
+                Console.WriteLine(total);
+
                 bool isFolder = await client.DirectoryExistsAsync(data.Path);
 
                 Task.Run(() =>
