@@ -52,7 +52,7 @@ namespace Netdrop.Controllers
             client.ReadTimeout = 2000;
             client.DataConnectionConnectTimeout = 2000;
             client.DataConnectionReadTimeout = 2000;
-            client.DataConnectionType = FtpDataConnectionType.AutoPassive;
+            client.DataConnectionType = FtpDataConnectionType.AutoActive;
             FtpTrace.LogToConsole = true;
             return client;
         }
