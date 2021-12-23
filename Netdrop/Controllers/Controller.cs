@@ -53,7 +53,7 @@ namespace Netdrop.Controllers
             client.DataConnectionConnectTimeout = 2000;
             client.DataConnectionReadTimeout = 2000;
             client.DataConnectionType = FtpDataConnectionType.AutoPassive;
-            FtpTrace.LogToConsole = true;
+            FtpTrace.LogToFile = "resiazure.txt";
             return client;
         }
 
