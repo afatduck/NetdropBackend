@@ -22,6 +22,7 @@ namespace Netdrop.Controllers
         public static Dictionary<string, double> DownloadSpeed = new Dictionary<string, double>();
         public static Dictionary<string, string> DownloadError = new Dictionary<string, string>();
         public static Dictionary<string, bool> DownloadComplete = new Dictionary<string, bool>();
+        public static Dictionary<string, List<long>> DownloadDirectory = new Dictionary<string, List<long>>();
 
         [HttpPost("download")]
         public async Task<IActionResult> PostDownload([FromBody] BaseFtpRequest data)
@@ -35,24 +36,39 @@ namespace Netdrop.Controllers
 
                 DownloadComplete[filename] = false;
 
-                Action<FtpProgress> progress = delegate (FtpProgress p){
-                    DownloadProgress[filename] = (short)p.Progress;
-                    DownloadSpeed[filename] = p.TransferSpeed;
-                };
-
                 FtpClient client = GetFtpClient(data);
                 await client.ConnectAsync();
 
-                long total = 0;
+                bool isFolder = await client.DirectoryExistsAsync(data.Path);
+                long totalToDownload = 1;
 
-                foreach (FtpListItem item in await client.GetListingAsync(data.Path, FtpListOption.Recursive))
+                if (isFolder) 
                 {
-                    total += item.Size;
+                    totalToDownload = 0;
+                    DownloadDirectory[filename] = new List<long>() { 0 };
+
+                    foreach (FtpListItem item in await client.GetListingAsync(data.Path, FtpListOption.Recursive))
+                    {
+                        totalToDownload += item.Size;
+                        DownloadDirectory[filename].Add(totalToDownload);
+                    }
                 }
 
-                Console.WriteLine(total);
+                Action<FtpProgress> progress = delegate (FtpProgress p) {
 
-                bool isFolder = await client.DirectoryExistsAsync(data.Path);
+                    DownloadSpeed[filename] = p.TransferSpeed;
+
+                    if (!isFolder)
+                    {
+                        DownloadProgress[filename] = (short)p.Progress;
+                        
+                        return;
+                    }
+
+                    DownloadProgress[filename] = (short)((double)(DownloadDirectory[filename][p.FileIndex] + p.TransferredBytes) / totalToDownload * 100);
+
+                    
+                };
 
                 Task.Run(() =>
                 {

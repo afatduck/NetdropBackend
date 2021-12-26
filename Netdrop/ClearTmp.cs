@@ -26,7 +26,7 @@ namespace Netdrop
             {
                 try
                 {
-                    DateTime lastMod = File.GetLastAccessTime(f);
+                    DateTime lastMod = new[]{ File.GetLastAccessTime(f), File.GetLastWriteTime(f) }.Max();
                     if (lastMod.AddMinutes(1).CompareTo(DateTime.Now) < 0)
                     {
                         File.Delete(f);
@@ -39,7 +39,7 @@ namespace Netdrop
             {
                 try
                 {
-                    DateTime lastMod = Directory.GetLastAccessTime("tmp/" + f);
+                    DateTime lastMod = new[]{ Directory.GetLastAccessTime("tmp/" + f), File.GetLastWriteTime("tmp/" + f) }.Max();
                     if (lastMod.AddMinutes(1).CompareTo(DateTime.Now) < 0)
                     {
                         Directory.Delete(f, true);

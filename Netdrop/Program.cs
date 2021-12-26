@@ -24,11 +24,13 @@ namespace Netdrop
                     webBuilder.UseStartup<Startup>();
                     //webBuilder.UseKestrel(options =>
                     //{
-                    //    options.Listen(IPAddress.Any, 5009, listenOptions => {
+                    //    options.Listen(IPAddress.Any, 5009, listenOptions =>
+                    //    {
                     //        listenOptions.UseHttps("cert.pfx", "1");
                     //    });
 
-                    //    options.Listen(IPAddress.Loopback, 5009, listenOptions => {
+                    //    options.Listen(IPAddress.Loopback, 5009, listenOptions =>
+                    //    {
                     //        listenOptions.UseHttps("localhost.pfx", "1");
                     //    });
 

@@ -64,13 +64,14 @@ namespace Netdrop.Controllers
                     {
 
                         if (i != 0) { soFar += fileSizes[i-1]; }
+                        DateTime timestamp = DateTime.Now;
+                        long lastDownloaded = 0;
 
                         Action<FtpProgress> progress = delegate (FtpProgress p) {
-                            UploadProgress[code] = (short)((soFar + p.Progress * fileSizes[i] / 100) / fileSizes.Sum() * 100);
-                            if (p.TransferSpeed != 0)
-                            {
-                                UploadSpeed[code] = p.TransferSpeed;
-                            }
+                            UploadSpeed[code] = ((long)(soFar + p.Progress * fileSizes[i] / 100) - lastDownloaded) / (DateTime.Now - timestamp).TotalMilliseconds * 1000;
+                            lastDownloaded = (long)(soFar + p.Progress * fileSizes[i] / 100);
+                            UploadProgress[code] = (short)((double)lastDownloaded / fileSizes.Sum() * 100);
+                            timestamp = DateTime.Now;
                         };           
                         
                             try
