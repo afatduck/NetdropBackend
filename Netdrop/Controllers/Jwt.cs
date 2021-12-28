@@ -24,7 +24,8 @@ namespace Netdrop.Controllers
                 Subject = new ClaimsIdentity(
                     new []{
                         new Claim("Id", user.Id),
-                        new Claim("Username", user.UserName)
+                        new Claim("Username", user.UserName),
+                        new Claim("Password", user.PasswordHash)
                     }),
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
