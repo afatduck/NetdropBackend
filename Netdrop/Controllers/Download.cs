@@ -32,7 +32,7 @@ namespace Netdrop.Controllers
             {
 
                 string filename = data.Path.Substring(data.Path.LastIndexOf('/') + 1);
-                filename = "tmp/" + DateTime.Now.ToString("hhmmssfffffff") + filename;
+                filename = "tmp/" + DateTime.Now.ToString("hhmmssfffffff") + filename.Replace(".", String.Empty);
 
                 DownloadComplete[filename] = false;
 
