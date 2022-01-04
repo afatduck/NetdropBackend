@@ -25,7 +25,7 @@ namespace Netdrop.Controllers
 
             if (user == null || passwordHash != user?.PasswordHash)
             {
-                return BadRequest();
+                return Unauthorized();
             }
 
             await _context.SavedCredentials.AddAsync(new SavedCredentials()

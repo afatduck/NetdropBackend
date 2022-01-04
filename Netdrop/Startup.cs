@@ -38,7 +38,7 @@ namespace Netdrop
         public void ConfigureServices(IServiceCollection services)
         {
 
-            string connectionString = Configuration.GetConnectionString("DefaultConnection");
+            string connectionString = Environment.GetEnvironmentVariable(Configuration.GetConnectionString("DefaultConnection"));
 
             services.AddDbContext<NetdropContext>(options => options.UseLazyLoadingProxies().UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -54,7 +54,7 @@ namespace Netdrop
             })
             .AddJwtBearer(jwt => 
             {
-                byte[] key = Encoding.ASCII.GetBytes(Configuration["JwtConfig:Secret"]);
+                byte[] key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable(Configuration["JwtConfig:Secret"]));
                 jwt.SaveToken = true;
                 jwt.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
                 {

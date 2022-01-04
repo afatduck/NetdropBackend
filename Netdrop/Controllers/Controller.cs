@@ -42,7 +42,12 @@ namespace Netdrop.Controllers
 
         private FtpClient GetFtpClient(BaseFtpRequest data)
         {
-            FtpClient client = new(data.Host, data.Port, data.Username, data.Password);
+            FtpClient client;
+            if (data.Username + data.Password == string.Empty)
+            {
+                client = new(data.Host, data.Port, new NetworkCredential("anonymous", "janeDoe@contoso.com"));
+            }
+            else { client = new(data.Host, data.Port, data.Username, data.Password); } 
             client.DataConnectionEncryption = true;
             client.SslProtocols = System.Security.Authentication.SslProtocols.None;
             client.EncryptionMode = data.Secure ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None;
@@ -53,7 +58,6 @@ namespace Netdrop.Controllers
             client.DataConnectionConnectTimeout = 2000;
             client.DataConnectionReadTimeout = 2000;
             client.DataConnectionType = FtpDataConnectionType.AutoPassive;
-            FtpTrace.LogToFile = "resiazure.txt";
             return client;
         }
 
