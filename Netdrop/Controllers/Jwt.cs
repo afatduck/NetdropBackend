@@ -17,7 +17,7 @@ namespace Netdrop.Controllers
         private string GenerateJwtToken(ApplicationUser user)
         {
             JwtSecurityTokenHandler jwtTokenHandler = new JwtSecurityTokenHandler();
-            byte[] key = Encoding.ASCII.GetBytes(_jwtConfig.Secret);
+            byte[] key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable(_jwtConfig.Secret));
 
             SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
             {
