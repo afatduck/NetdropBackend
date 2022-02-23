@@ -20,7 +20,6 @@ namespace Netdrop.Controllers
             {
 
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
                 await client.RenameAsync(data.Path, data.Path.Substring(0, data.Path.LastIndexOf('/') + 1) + data.Name);
                 client.DisconnectAsync();
 

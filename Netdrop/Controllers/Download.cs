@@ -37,8 +37,6 @@ namespace Netdrop.Controllers
                 DownloadComplete[filename] = false;
 
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
-
                 bool isFolder = await client.DirectoryExistsAsync(data.Path);
                 long totalToDownload = 1;
 
@@ -76,12 +74,12 @@ namespace Netdrop.Controllers
                     {
                         if (isFolder)
                         {
-                            client.DownloadDirectory(filename, data.Path, FtpFolderSyncMode.Mirror, FtpLocalExists.Skip, FtpVerify.None, null, progress);
+                            client.DownloadDirectory(filename, data.Path, FtpFolderSyncMode.Mirror, FtpLocalExists.Skip, FtpVerify.Retry, null, progress);
                             ZipFile.CreateFromDirectory(filename, filename + ".zip");
                         }
                         else
                         {
-                            client.DownloadFile(filename, data.Path, FtpLocalExists.Resume, FtpVerify.OnlyChecksum, progress);
+                            client.DownloadFile(filename, data.Path, FtpLocalExists.Resume, FtpVerify.Retry, progress);
                         }
 
                         DownloadComplete[filename] = true;
@@ -91,8 +89,7 @@ namespace Netdrop.Controllers
                         DownloadProgress[filename] = -1;
                         DownloadError[filename] = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
                     }
-                    
-                    client.Dispose();
+
                 });
 
                 return Ok(new DownloadResponse()

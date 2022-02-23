@@ -28,11 +28,8 @@ namespace Netdrop.Controllers
                 filename = "tmp/" + DateTime.Now.ToString("hhmmssfffffff") + filename.Replace(".", String.Empty);
 
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
 
                 await client.DownloadFileAsync(filename, data.Path, FtpLocalExists.Resume, FtpVerify.None);
-
-                client.Dispose();
 
                 return Ok(new ViewResponse()
                 {

@@ -22,8 +22,7 @@ namespace Netdrop.Controllers
         private static Dictionary<string, double> UploadSpeed = new Dictionary<string, double>();
 
         [HttpPost("upload")]
-        [RequestSizeLimit(10L * 1024L * 1024L * 1024L)]
-        [RequestFormLimits(MultipartBodyLengthLimit = 10L * 1024L * 1024L * 1024L)]
+        [DisableRequestSizeLimit]
         public async Task<IActionResult> PostUpload([FromForm] IList<IFormFile> files, [FromForm] string dataJson)
         {
             try
@@ -56,7 +55,6 @@ namespace Netdrop.Controllers
                 }
 
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
 
                 Task.Run(() => {
 
@@ -76,8 +74,7 @@ namespace Netdrop.Controllers
                         
                             try
                             {
-                                var ftpStatus = client.UploadFile(localFiles[i], remoteFiles[i], FtpRemoteExists.Overwrite, true, FtpVerify.None, progress);
-                                if (i == localFiles.Count - 1) { client.Dispose(); }
+                                var ftpStatus = client.UploadFile(localFiles[i], remoteFiles[i], FtpRemoteExists.Overwrite, true, FtpVerify.Retry, progress);
                             }
                             catch (FtpException ex)
                             {

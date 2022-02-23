@@ -19,10 +19,8 @@ namespace Netdrop.Controllers
             try
             {
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
                 if (!await client.DirectoryExistsAsync(data.Path)) { await client.DeleteFileAsync(data.Path); }
                 else { await client.DeleteDirectoryAsync(data.Path); }
-                client.Dispose();
             }
             catch (Exception ex)
             {

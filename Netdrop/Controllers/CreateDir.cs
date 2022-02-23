@@ -20,9 +20,7 @@ namespace Netdrop.Controllers
             {
 
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
                 await client.CreateDirectoryAsync(data.Path);
-                client.Dispose();
 
             }
             catch (Exception ex)

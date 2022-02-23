@@ -14,6 +14,7 @@ using Netdrop.Models;
 using FluentFTP;
 using Netdrop.Interfaces;
 using FluentFTP.Helpers;
+using Netdrop.Interfaces.Responses;
 
 namespace Netdrop.Controllers
 {
@@ -37,28 +38,35 @@ namespace Netdrop.Controllers
         [HttpGet]
         public IActionResult ContactApi()
         {
-            return Ok();
-        }
+            string clientKey = Request.Cookies["connection"];
 
-        private FtpClient GetFtpClient(BaseFtpRequest data)
-        {
-            FtpClient client;
-            if (data.Username + data.Password == string.Empty)
+            try
             {
-                client = new(data.Host, data.Port, new NetworkCredential("anonymous", "janeDoe@contoso.com"));
+                if (!string.IsNullOrEmpty(clientKey) && SavedClients.ContainsKey(clientKey))
+                {
+                    FtpClient client = SavedClients[clientKey];
+                    if (client != null && !client.IsDisposed)
+                    {
+                        return Ok(new ContactResponse()
+                        {
+                            ConnectionFound = true,
+                            Host = client.Host,
+                            Username = client.Credentials.UserName,
+                            Password = client.Credentials.Password,
+                            Port = client.Port,
+                            Secure = client.EncryptionMode == FtpEncryptionMode.Implicit
+                        });
+                    }
+                    
+                }
             }
-            else { client = new(data.Host, data.Port, data.Username, data.Password); } 
-            client.DataConnectionEncryption = true;
-            client.SslProtocols = System.Security.Authentication.SslProtocols.None;
-            client.EncryptionMode = data.Secure ? FtpEncryptionMode.Implicit : FtpEncryptionMode.None;
-            client.ValidateAnyCertificate = true;
-            client.SocketPollInterval = 1000;
-            client.ConnectTimeout = 2000;
-            client.ReadTimeout = 2000;
-            client.DataConnectionConnectTimeout = 2000;
-            client.DataConnectionReadTimeout = 2000;
-            client.DataConnectionType = FtpDataConnectionType.AutoPassive;
-            return client;
+            catch (FtpException) { }
+
+            return Ok(new ContactResponse()
+            {
+                ConnectionFound = false
+            });
+
         }
 
     }

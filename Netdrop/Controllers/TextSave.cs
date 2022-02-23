@@ -22,12 +22,9 @@ namespace Netdrop.Controllers
             {
 
                 FtpClient client = GetFtpClient(data);
-                await client.ConnectAsync();
-
                 byte[] textData = UnicodeEncoding.UTF8.GetBytes(data.Text);
                 await client.UploadAsync(textData, data.Path, FtpRemoteExists.Overwrite);
 
-                client.Dispose();
 
             }
             catch (Exception ex)

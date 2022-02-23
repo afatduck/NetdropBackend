@@ -27,7 +27,7 @@ namespace Netdrop
                 try
                 {
                     DateTime lastMod = new[]{ File.GetLastAccessTime(f), File.GetLastWriteTime(f) }.Max();
-                    if (lastMod.AddMinutes(1).CompareTo(DateTime.Now) < 0)
+                    if ((lastMod.AddHours(1).CompareTo(DateTime.Now) < 0 && File.GetLastAccessTime(f) == File.GetLastWriteTime(f)) || File.GetLastAccessTime(f) != File.GetLastWriteTime(f))
                     {
                         File.Delete(f);
                     }
@@ -39,8 +39,8 @@ namespace Netdrop
             {
                 try
                 {
-                    DateTime lastMod = new[]{ Directory.GetLastAccessTime("tmp/" + f), File.GetLastWriteTime("tmp/" + f) }.Max();
-                    if (lastMod.AddMinutes(1).CompareTo(DateTime.Now) < 0)
+                    DateTime lastMod = new[]{ Directory.GetLastAccessTime("tmp/" + f), Directory.GetLastWriteTime("tmp/" + f) }.Max();
+                    if ((lastMod.AddHours(1).CompareTo(DateTime.Now) < 0 && Directory.GetLastAccessTime(f) == Directory.GetLastWriteTime(f)) || Directory.GetLastAccessTime(f) != Directory.GetLastWriteTime(f))
                     {
                         Directory.Delete(f, true);
                     }
