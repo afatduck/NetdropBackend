@@ -13,5 +13,6 @@ namespace Netdrop.Interfaces
         public bool Secure { get; set; }
         public int Port { get; set; }
         public string Path { get; set; }
+        public bool Save { get; set; }
     }
 }

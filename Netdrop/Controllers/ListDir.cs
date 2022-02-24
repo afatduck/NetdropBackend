@@ -40,6 +40,7 @@ namespace Netdrop.Controllers
                         };
                         dirList.Add(toAdd);
                     }
+                if (!data.Save) client.Dispose();
 
                 return Ok(new ListDirResponse() {
                         Result = true,

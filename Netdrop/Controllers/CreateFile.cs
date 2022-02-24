@@ -21,6 +21,7 @@ namespace Netdrop.Controllers
 
                 FtpClient client = GetFtpClient(data);
                 await client.UploadAsync(new byte[0], data.Path, FtpRemoteExists.Skip, false);
+                if (!data.Save) client.Dispose();
 
             }
             catch (Exception ex)

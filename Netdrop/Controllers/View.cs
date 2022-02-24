@@ -30,6 +30,7 @@ namespace Netdrop.Controllers
                 FtpClient client = GetFtpClient(data);
 
                 await client.DownloadFileAsync(filename, data.Path, FtpLocalExists.Resume, FtpVerify.None);
+                if (!data.Save) client.Dispose();
 
                 return Ok(new ViewResponse()
                 {

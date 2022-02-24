@@ -83,6 +83,7 @@ namespace Netdrop.Controllers
                             }
 
                     }
+                    if (!data.Save) client.Dispose();
 
                 });
 

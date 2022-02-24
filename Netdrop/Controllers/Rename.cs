@@ -21,10 +21,10 @@ namespace Netdrop.Controllers
 
                 FtpClient client = GetFtpClient(data);
                 await client.RenameAsync(data.Path, data.Path.Substring(0, data.Path.LastIndexOf('/') + 1) + data.Name);
-                client.DisconnectAsync();
+                if (!data.Save) client.Dispose();
 
             }
-            catch (WebException ex)
+            catch (Exception ex)
             {
 
                 return Ok(new ResultBase() 

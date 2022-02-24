@@ -31,6 +31,19 @@ namespace Netdrop.Controllers
                     Expires = DateTime.Now.AddDays(-2),
                 });
 
+            } else 
+            {
+                string cookieCon = Request.Cookies["connection"];
+                FtpClient client = SavedClients.ContainsKey(cookieCon) ? SavedClients[cookieCon] : null;
+                if (client != null) client.Dispose();
+                Response.Cookies.Append("connection", "", new CookieOptions()
+                {
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.None,
+                    Secure = true,
+                    Expires = DateTime.Now.AddDays(-2),
+                });
+
             }
 
             return Ok();

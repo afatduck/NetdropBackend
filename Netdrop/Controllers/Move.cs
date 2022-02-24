@@ -21,6 +21,7 @@ namespace Netdrop.Controllers
                 FtpClient client = GetFtpClient(data);
                 if (!await client.DirectoryExistsAsync(data.Source)) { await client.MoveFileAsync(data.Source, data.Destination, FtpRemoteExists.Overwrite); }
                 else { await client.MoveDirectoryAsync(data.Source, data.Destination, FtpRemoteExists.Overwrite); }
+                if (!data.Save) client.Dispose();
             }
             catch (Exception ex)
             {

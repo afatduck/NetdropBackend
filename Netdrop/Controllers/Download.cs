@@ -82,6 +82,7 @@ namespace Netdrop.Controllers
                             client.DownloadFile(filename, data.Path, FtpLocalExists.Resume, FtpVerify.Retry, progress);
                         }
 
+                        if (!data.Save) client.Dispose();
                         DownloadComplete[filename] = true;
                     }
                     catch (FtpException ex) 

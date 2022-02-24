@@ -58,17 +58,19 @@ namespace Netdrop.Controllers
             client.SocketKeepAlive = true;
             client.Connect();
 
-
-            clientKey = DateTime.Now.ToString();
-            clientKey = EncryptField.Encrypt(clientKey);
-            SavedClients[clientKey] = client;
-            HttpContext.Items[0] = clientKey;
-            Response.Cookies.Append("connection", clientKey, new CookieOptions()
+            if (data.Save)
             {
-                HttpOnly = true,
-                SameSite = SameSiteMode.None,
-                Secure = true
-            });
+                clientKey = DateTime.Now.ToString();
+                clientKey = EncryptField.Encrypt(clientKey);
+                SavedClients[clientKey] = client;
+                HttpContext.Items[0] = clientKey;
+                Response.Cookies.Append("connection", clientKey, new CookieOptions()
+                {
+                    HttpOnly = true,
+                    SameSite = SameSiteMode.None,
+                    Secure = true
+                });
+            }
 
             return client;
         }
