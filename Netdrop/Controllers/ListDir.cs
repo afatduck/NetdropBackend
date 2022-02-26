@@ -52,7 +52,7 @@ namespace Netdrop.Controllers
             {
                 return Ok(new ListDirResponse() { 
                     Result = false,
-                    Errors = new List<string>() { ex.Message }
+                    Errors = new List<string>() { ex.InnerException != null ? ex.InnerException.Message : ex.Message }
                 });
             }
         }
