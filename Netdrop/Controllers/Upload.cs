@@ -72,7 +72,6 @@ namespace Netdrop.Controllers
                             lastDownloaded = (long)(soFar + p.Progress * fileSizes[i] / 100);
                             UploadProgress[code] = (short)((double)lastDownloaded / fileSizes.Sum() * 100);
                             timestamp = DateTime.Now;
-                            if (p.Progress == 100) UploadComplete[code] = true;
                         };           
                         
                             try
@@ -86,6 +85,8 @@ namespace Netdrop.Controllers
                             }
 
                     }
+                    client.Noop();
+                    UploadComplete[code] = true;
                     if (!data.Save) client.Dispose();
 
                 });
