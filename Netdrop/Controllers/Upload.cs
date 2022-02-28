@@ -20,6 +20,7 @@ namespace Netdrop.Controllers
         private static Dictionary<string, short> UploadProgress = new Dictionary<string, short>();
         private static Dictionary<string, string> UploadError = new Dictionary<string, string>();
         private static Dictionary<string, double> UploadSpeed = new Dictionary<string, double>();
+        private static Dictionary<string, bool> UploadComplete = new Dictionary<string, bool>();
 
         [HttpPost("upload")]
         [DisableRequestSizeLimit]
@@ -55,6 +56,7 @@ namespace Netdrop.Controllers
                 }
 
                 FtpClient client = GetFtpClient(data);
+                UploadComplete[code] = false;
 
                 Task.Run(() => {
 
@@ -70,6 +72,7 @@ namespace Netdrop.Controllers
                             lastDownloaded = (long)(soFar + p.Progress * fileSizes[i] / 100);
                             UploadProgress[code] = (short)((double)lastDownloaded / fileSizes.Sum() * 100);
                             timestamp = DateTime.Now;
+                            if (p.Progress == 100) UploadComplete[code] = true;
                         };           
                         
                             try
@@ -110,12 +113,14 @@ namespace Netdrop.Controllers
             short progress = UploadProgress.ContainsKey(code) ? UploadProgress[code] : (short)0;
             double speed = UploadSpeed.ContainsKey(code) ? UploadSpeed[code] : 0;
             string error = UploadError.ContainsKey(code) ? UploadError[code] : string.Empty;
+            bool complete = UploadComplete.ContainsKey(code) ? UploadComplete[code] : false;
 
             return Ok(new ProgressResponse()
             {
                 Result = progress != -1,
                 Done = progress,
                 Speed = speed,
+                Complete = complete,
                 Errors = new List<string>() { error }
             });
         }
