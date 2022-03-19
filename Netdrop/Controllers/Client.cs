@@ -32,7 +32,7 @@ namespace Netdrop.Controllers
                 {
 
                         HttpContext.Items[0] = clientKey;
-                        if (!cli.IsConnected) cli.Noop();
+                        if (!cli.IsConnected) cli.Connect();
                         return cli;
                 }
             }
