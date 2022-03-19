@@ -24,7 +24,6 @@ namespace Netdrop.Controllers
             try
             {
                     FtpClient client = GetFtpClient(data, data.New, data.Connection);
-                    if (!client.IsConnected) client.Noop();
 
                     FtpListItem[] items = await client.GetListingAsync(data.Path);
                     List<DirList> dirList = new List<DirList>();
