@@ -122,6 +122,24 @@ namespace Netdrop
                 }
                 );
 
+            app.UseStaticFiles(
+                new StaticFileOptions()
+                {
+                    ServeUnknownFileTypes = true,
+
+                    OnPrepareResponse = ctx =>
+                    {
+                        ctx.Context.Response.Headers.Append("Access-Control-Allow-Origin", "*");
+                    },
+
+                    FileProvider = new PhysicalFileProvider(
+                            Path.Combine(Directory.GetCurrentDirectory(), @"obrana")),
+                    RequestPath = new PathString("/obrana")
+
+
+                }
+                );
+
             app.UseRouting();
 
             app.UseCors(x => x
